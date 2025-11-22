@@ -1,0 +1,45 @@
+================================================
+
+Just run: .\setup_new_device.ps1
+OR USE THE AUTOMATED SETUP SCRIPT:
+
+================================================
+
+python resume_generator.py
+Then run:
+
+Remove-Item -Recurse -Force .venv; python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt
+
+================================================
+QUICK COPY-PASTE VERSION (all commands at once):
+================================================
+
+python resume_generator.py
+----------------------------
+Step 5: Run the application
+
+pip install -r requirements.txt
+--------------------------------------
+Step 4: Install the required packages
+
+.\.venv\Scripts\Activate.ps1
+-----------------------------------------
+Step 3: Activate the virtual environment
+
+python -m venv .venv
+-----------------------------------------
+Step 2: Create a new virtual environment
+
+Remove-Item -Recurse -Force .venv
+-------------------------------------------
+Step 1: Delete the old virtual environment
+
+================================================
+SOLUTION - Run these commands in PowerShell:
+
+You need to recreate it on the new device.
+The virtual environment (.venv folder) doesn't work when copied to a new device.
+
+================================================
+   SETUP ON A NEW DEVICE
+
