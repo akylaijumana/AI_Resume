@@ -502,17 +502,19 @@ PROFESSIONAL EXPERIENCE
         return '\n'.join(result)
 
     def _ai_generate_job_responsibilities(self, job_title, skills, education):
-        """AI GENERATES 3-5 professional responsibilities for a job title"""
+        """AI GENERATES 3-5 professional responsibilities for a specific job title"""
         try:
-            prompt = f"List 4 professional job responsibilities for: {job_title}. Skills: {skills[:80]}"
+            # Make prompt more specific to get unique results for each job
+            prompt = f"Generate 4 specific professional responsibilities for this exact position: {job_title}. Include skills like: {skills[:80]}"
 
             inputs = self.ai_tokenizer(prompt, return_tensors="pt", max_length=256, truncation=True)
             outputs = self.ai_model.generate(
                 inputs.input_ids,
                 max_length=150,
                 min_length=40,
-                temperature=0.7,
+                temperature=0.9,  # Increased for more variation
                 do_sample=True,
+                top_p=0.95,  # Increased for more diversity
                 num_return_sequences=1
             )
             ai_response = self.ai_tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -538,47 +540,135 @@ PROFESSIONAL EXPERIENCE
         return self._generate_template_responsibilities(job_title, skills)
 
     def _generate_template_responsibilities(self, job_title, skills):
-        """Generate template responsibilities based on job title"""
+        """Generate unique template responsibilities based on job title"""
+        import random
         job_lower = job_title.lower()
         skill_list = [s.strip() for s in skills.split(',')[:3]] if skills else []
 
+        # Use hash of job title for consistent variation per job
+        random.seed(hash(job_title))
+
         bullets = []
 
-        # Add skill-based responsibilities
-        if skill_list:
-            bullets.append(f"  • Applied expertise in {', '.join(skill_list)} to deliver high-quality results")
-
-        # Add role-specific responsibilities
-        if any(word in job_lower for word in ['developer', 'engineer', 'programmer']):
-            bullets.extend([
-                "  • Developed and maintained software applications using modern technologies",
+        # Add role-specific responsibilities with variations
+        if any(word in job_lower for word in ['developer', 'engineer', 'programmer', 'software']):
+            dev_bullets = [
+                "  • Developed and maintained software applications using modern technologies and frameworks",
+                "  • Designed and implemented scalable solutions to meet business requirements",
+                "  • Built and optimized applications focusing on performance and user experience",
                 "  • Collaborated with cross-functional teams to deliver projects on schedule",
-                "  • Implemented best practices for code quality and testing"
-            ])
-        elif any(word in job_lower for word in ['manager', 'lead', 'supervisor']):
-            bullets.extend([
-                "  • Led team initiatives and coordinated project deliverables",
-                "  • Managed stakeholder relationships and communication",
-                "  • Improved team efficiency through process optimization"
-            ])
-        elif any(word in job_lower for word in ['analyst', 'data']):
-            bullets.extend([
-                "  • Analyzed complex data sets to drive business insights",
+                "  • Participated in code reviews and maintained high code quality standards",
+                "  • Worked closely with product teams to define technical specifications",
+                "  • Implemented best practices for code quality, testing, and documentation",
+                "  • Debugged and resolved complex technical issues in production environments",
+                "  • Integrated third-party APIs and services into existing systems",
+                "  • Mentored junior developers and contributed to team knowledge sharing",
+                "  • Optimized database queries and improved application performance by 30%",
+                "  • Contributed to architecture decisions and technical documentation"
+            ]
+            bullets.extend(random.sample(dev_bullets, min(4, len(dev_bullets))))
+
+        elif any(word in job_lower for word in ['manager', 'lead', 'supervisor', 'director']):
+            mgmt_bullets = [
+                "  • Led team initiatives and coordinated project deliverables across departments",
+                "  • Managed cross-functional teams to achieve strategic objectives",
+                "  • Directed daily operations and team workflows for optimal productivity",
+                "  • Managed stakeholder relationships and communication at all levels",
+                "  • Built and maintained relationships with key stakeholders and clients",
+                "  • Facilitated communication between technical teams and business units",
+                "  • Improved team efficiency through process optimization and automation",
+                "  • Implemented process improvements that increased productivity by 25%",
+                "  • Streamlined workflows and reduced operational costs",
+                "  • Developed and executed strategic plans aligned with company goals",
+                "  • Mentored team members and fostered professional development",
+                "  • Conducted performance reviews and provided constructive feedback"
+            ]
+            bullets.extend(random.sample(mgmt_bullets, min(4, len(mgmt_bullets))))
+
+        elif any(word in job_lower for word in ['analyst', 'data', 'research']):
+            analyst_bullets = [
+                "  • Analyzed complex data sets to drive business insights and recommendations",
+                "  • Conducted quantitative and qualitative analysis to support decision-making",
+                "  • Performed statistical analysis on large datasets to identify trends",
                 "  • Created comprehensive reports and visualizations for stakeholders",
-                "  • Identified trends and opportunities for operational improvements"
-            ])
-        elif any(word in job_lower for word in ['designer', 'creative']):
-            bullets.extend([
-                "  • Designed and delivered creative solutions for client projects",
-                "  • Collaborated with stakeholders to understand requirements",
-                "  • Maintained brand consistency across all deliverables"
-            ])
+                "  • Developed interactive dashboards and data visualizations using modern tools",
+                "  • Presented findings and recommendations to senior leadership",
+                "  • Identified trends and opportunities for operational improvements",
+                "  • Discovered cost-saving opportunities through detailed data analysis",
+                "  • Monitored key performance indicators and provided actionable insights",
+                "  • Collaborated with business units to define metrics and reporting requirements",
+                "  • Automated reporting processes to improve efficiency and accuracy",
+                "  • Maintained data quality and integrity across multiple systems"
+            ]
+            bullets.extend(random.sample(analyst_bullets, min(4, len(analyst_bullets))))
+
+        elif any(word in job_lower for word in ['designer', 'creative', 'ui', 'ux']):
+            design_bullets = [
+                "  • Designed and delivered creative solutions for client projects and campaigns",
+                "  • Created user-centered designs that improved engagement and satisfaction",
+                "  • Developed visual assets and design systems for multiple platforms",
+                "  • Collaborated with stakeholders to understand requirements and objectives",
+                "  • Worked closely with product teams to define user experience strategies",
+                "  • Conducted user research and usability testing to inform design decisions",
+                "  • Maintained brand consistency across all deliverables and touchpoints",
+                "  • Ensured designs met accessibility standards and best practices",
+                "  • Created style guides and design documentation for development teams",
+                "  • Produced wireframes, mockups, and prototypes for new features",
+                "  • Iterated on designs based on user feedback and analytics data",
+                "  • Managed multiple design projects with competing deadlines"
+            ]
+            bullets.extend(random.sample(design_bullets, min(4, len(design_bullets))))
+
+        elif any(word in job_lower for word in ['sales', 'account', 'business development']):
+            sales_bullets = [
+                "  • Exceeded sales targets by building strong client relationships",
+                "  • Generated new business opportunities through prospecting and networking",
+                "  • Managed key accounts and ensured high customer satisfaction",
+                "  • Developed and delivered compelling presentations to potential clients",
+                "  • Negotiated contracts and closed deals with enterprise customers",
+                "  • Identified customer needs and recommended appropriate solutions",
+                "  • Collaborated with marketing team to develop targeted campaigns",
+                "  • Tracked sales metrics and provided regular reports to management"
+            ]
+            bullets.extend(random.sample(sales_bullets, min(4, len(sales_bullets))))
+
+        elif any(word in job_lower for word in ['marketing', 'content', 'social media']):
+            marketing_bullets = [
+                "  • Developed and executed marketing strategies to increase brand awareness",
+                "  • Created engaging content across multiple digital channels",
+                "  • Managed social media accounts and grew follower engagement by 40%",
+                "  • Analyzed campaign performance and optimized based on metrics",
+                "  • Coordinated with design and product teams on marketing materials",
+                "  • Conducted market research to identify trends and opportunities",
+                "  • Managed marketing budget and vendor relationships",
+                "  • Organized events and promotional activities to drive customer acquisition"
+            ]
+            bullets.extend(random.sample(marketing_bullets, min(4, len(marketing_bullets))))
+
         else:
-            bullets.extend([
+            # Generic professional bullets
+            generic_bullets = [
                 "  • Contributed to team objectives and organizational goals",
+                "  • Supported departmental initiatives and cross-functional projects",
+                "  • Assisted in achieving key performance targets and milestones",
                 "  • Demonstrated strong problem-solving and analytical skills",
-                "  • Collaborated effectively with colleagues and stakeholders"
-            ])
+                "  • Applied critical thinking to resolve complex challenges",
+                "  • Identified and implemented solutions to improve processes",
+                "  • Collaborated effectively with colleagues and stakeholders",
+                "  • Worked with diverse teams to deliver successful outcomes",
+                "  • Maintained excellent communication with internal and external partners",
+                "  • Provided excellent customer service and support",
+                "  • Managed multiple priorities in fast-paced environment",
+                "  • Maintained accurate records and documentation"
+            ]
+            bullets.extend(random.sample(generic_bullets, min(4, len(generic_bullets))))
+
+        # Add skill-based bullet if skills provided
+        if skill_list and len(bullets) < 4:
+            bullets.insert(0, f"  • Utilized {', '.join(skill_list[:2])} to deliver high-quality results")
+
+        # Reset random seed
+        random.seed()
 
         return bullets[:4]
 
