@@ -18,120 +18,290 @@ except ImportError:
     AutoModelForSeq2SeqLM = None
     torch = None
 
+class ModernButton(tk.Canvas):
+    """Custom modern button with hover effects"""
+    def __init__(self, parent, text, command, bg_color="#4F46E5", hover_color="#4338CA",
+                 text_color="white", width=200, height=50, **kwargs):
+        super().__init__(parent, width=width, height=height, bg=parent.cget('bg'),
+                        highlightthickness=0, **kwargs)
+
+        self.command = command
+        self.bg_color = bg_color
+        self.hover_color = hover_color
+        self.text_color = text_color
+        self.width = width
+        self.height = height
+        self.text = text
+
+        self.draw_button(self.bg_color)
+
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+        self.bind("<Button-1>", self.on_click)
+
+    def draw_button(self, color):
+        self.delete("all")
+        # Rounded rectangle
+        radius = 10
+        self.create_rounded_rect(2, 2, self.width-2, self.height-2, radius, fill=color, outline="")
+        # Shadow effect
+        self.create_text(self.width/2, self.height/2, text=self.text,
+                        fill=self.text_color, font=("Segoe UI", 11, "bold"))
+
+    def create_rounded_rect(self, x1, y1, x2, y2, radius, **kwargs):
+        points = [
+            x1+radius, y1,
+            x2-radius, y1,
+            x2, y1,
+            x2, y1+radius,
+            x2, y2-radius,
+            x2, y2,
+            x2-radius, y2,
+            x1+radius, y2,
+            x1, y2,
+            x1, y2-radius,
+            x1, y1+radius,
+            x1, y1
+        ]
+        return self.create_polygon(points, smooth=True, **kwargs)
+
+    def on_enter(self, e):
+        self.draw_button(self.hover_color)
+        self.config(cursor="hand2")
+
+    def on_leave(self, e):
+        self.draw_button(self.bg_color)
+
+    def on_click(self, e):
+        if self.command:
+            self.command()
+
 class ResumeGeneratorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("AI Resume Generator (Free Version)")
-        self.root.geometry("850x750")
-        self.root.configure(bg="#f0f0f0")
+        self.root.title("AI Resume Generator Pro")
+        self.root.geometry("1100x800")
+
+        # Modern color scheme
+        self.bg_gradient_start = "#0F172A"  # Dark blue
+        self.bg_gradient_end = "#1E293B"
+        self.accent_color = "#6366F1"  # Indigo
+        self.accent_hover = "#4F46E5"
+        self.card_bg = "#1E293B"
+        self.text_color = "#F1F5F9"
+        self.text_secondary = "#94A3B8"
+
+        self.root.configure(bg=self.bg_gradient_start)
 
         self.ai_model = None
         self.ai_tokenizer = None
         self.model_loaded = False
 
-        self.setup_ui()
+        self.setup_modern_ui()
 
-    def setup_ui(self):
-        # Main container
-        main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.grid(row=0, column=0, sticky="nsew")
+    def setup_modern_ui(self):
+        # Configure grid
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
-        # Title
-        title_label = tk.Label(main_frame, text="AI Resume Generator",
-                              font=("Arial", 20, "bold"), bg="#f0f0f0")
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 10))
+        # Main canvas for gradient background
+        canvas = tk.Canvas(self.root, bg=self.bg_gradient_start, highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
 
-        # Mode Selection
-        mode_frame = ttk.Frame(main_frame)
-        mode_frame.grid(row=1, column=0, columnspan=2, pady=(0, 20))
+        # Scrollable frame
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical")
+        scrollbar.grid(row=0, column=1, sticky="ns")
 
-        ttk.Label(mode_frame, text="Generation Mode:", font=("Arial", 10, "bold")).pack(side="left", padx=5)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.configure(command=canvas.yview)
+
+        # Inner frame
+        main_frame = tk.Frame(canvas, bg=self.bg_gradient_start)
+        canvas_window = canvas.create_window((0, 0), window=main_frame, anchor="nw")
+
+        def configure_scroll_region(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfig(canvas_window, width=event.width)
+
+        main_frame.bind("<Configure>", configure_scroll_region)
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(canvas_window, width=e.width))
+
+        # Enable mousewheel scrolling
+        def on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind_all("<MouseWheel>", on_mousewheel)
+
+        # Header section with gradient
+        header_frame = tk.Frame(main_frame, bg=self.bg_gradient_start, height=120)
+        header_frame.pack(fill="x", padx=40, pady=(30, 20))
+
+        # Title with gradient effect
+        title_label = tk.Label(header_frame, text="✨ AI Resume Generator Pro",
+                              font=("Segoe UI", 32, "bold"),
+                              fg="#F1F5F9", bg=self.bg_gradient_start)
+        title_label.pack()
+
+        subtitle_label = tk.Label(header_frame, text="Create professional resumes powered by AI in seconds",
+                                 font=("Segoe UI", 12),
+                                 fg=self.text_secondary, bg=self.bg_gradient_start)
+        subtitle_label.pack(pady=(5, 0))
+
+        # Mode selection card
+        mode_card = tk.Frame(main_frame, bg=self.card_bg, bd=0)
+        mode_card.pack(fill="x", padx=40, pady=(0, 20))
+
+        mode_inner = tk.Frame(mode_card, bg=self.card_bg)
+        mode_inner.pack(padx=25, pady=20)
+
+        mode_title = tk.Label(mode_inner, text="⚡ Generation Mode",
+                             font=("Segoe UI", 13, "bold"),
+                             fg=self.text_color, bg=self.card_bg)
+        mode_title.pack(anchor="w", pady=(0, 10))
 
         self.mode_var = tk.StringVar(value="template")
-        ttk.Radiobutton(mode_frame, text="Template (Fast)", variable=self.mode_var,
-                       value="template").pack(side="left", padx=5)
 
-        # Only show AI option if libraries are installed
+        mode_options = tk.Frame(mode_inner, bg=self.card_bg)
+        mode_options.pack(fill="x")
+
+        # Custom radio buttons with modern look
+        template_rb = tk.Radiobutton(mode_options, text="🚀 Template Mode (Fast)",
+                                    variable=self.mode_var, value="template",
+                                    font=("Segoe UI", 11), fg=self.text_color,
+                                    bg=self.card_bg, selectcolor=self.accent_color,
+                                    activebackground=self.card_bg, activeforeground=self.text_color)
+        template_rb.pack(side="left", padx=10)
+
         if AI_AVAILABLE:
-            ttk.Radiobutton(mode_frame, text="AI (Better Quality, Slower)", variable=self.mode_var,
-                           value="ai").pack(side="left", padx=5)
+            ai_rb = tk.Radiobutton(mode_options, text="🤖 AI Mode (Premium Quality)",
+                                  variable=self.mode_var, value="ai",
+                                  font=("Segoe UI", 11), fg=self.text_color,
+                                  bg=self.card_bg, selectcolor=self.accent_color,
+                                  activebackground=self.card_bg, activeforeground=self.text_color)
+            ai_rb.pack(side="left", padx=10)
         else:
-            ttk.Label(mode_frame, text="(AI mode: Install transformers & torch)",
-                     font=("Arial", 8), foreground="gray").pack(side="left", padx=5)
+            info_label = tk.Label(mode_options, text="(AI mode: Install transformers & torch)",
+                                 font=("Segoe UI", 9), fg="#64748B", bg=self.card_bg)
+            info_label.pack(side="left", padx=10)
 
-        # Status label
-        self.status_label = tk.Label(main_frame, text="Ready",
-                                    font=("Arial", 9), fg="green", bg="#f0f0f0")
-        self.status_label.grid(row=2, column=0, columnspan=2, pady=(0, 10))
+        # Status bar
+        self.status_label = tk.Label(main_frame, text="● Ready to generate",
+                                    font=("Segoe UI", 10),
+                                    fg="#10B981", bg=self.bg_gradient_start)
+        self.status_label.pack(pady=(0, 15))
 
-        # Input fields
-        row = 3
+        # Input fields card
+        input_card = tk.Frame(main_frame, bg=self.card_bg)
+        input_card.pack(fill="both", expand=True, padx=40, pady=(0, 20))
+
+        input_inner = tk.Frame(input_card, bg=self.card_bg)
+        input_inner.pack(padx=30, pady=25, fill="both", expand=True)
+
+        # Card title
+        card_title = tk.Label(input_inner, text="📝 Your Information",
+                             font=("Segoe UI", 15, "bold"),
+                             fg=self.text_color, bg=self.card_bg)
+        card_title.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 20))
+
+        # Modern input fields
+        row = 1
 
         # Name
-        ttk.Label(main_frame, text="Full Name:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.name_entry = ttk.Entry(main_frame, width=50)
-        self.name_entry.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "👤 Full Name", is_entry=True, var_name="name_entry")
         row += 1
 
         # Email
-        ttk.Label(main_frame, text="Email:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.email_entry = ttk.Entry(main_frame, width=50)
-        self.email_entry.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "📧 Email", is_entry=True, var_name="email_entry")
         row += 1
 
         # Phone
-        ttk.Label(main_frame, text="Phone:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.phone_entry = ttk.Entry(main_frame, width=50)
-        self.phone_entry.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "📱 Phone", is_entry=True, var_name="phone_entry")
         row += 1
 
         # Education
-        ttk.Label(main_frame, text="Education:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.education_text = scrolledtext.ScrolledText(main_frame, width=50, height=3)
-        self.education_text.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "🎓 Education", height=4, var_name="education_text")
         row += 1
 
         # Skills
-        ttk.Label(main_frame, text="Skills:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.skills_text = scrolledtext.ScrolledText(main_frame, width=50, height=3)
-        self.skills_text.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "💼 Skills", height=4, var_name="skills_text")
         row += 1
 
         # Experience
-        ttk.Label(main_frame, text="Experience:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        self.experience_text = scrolledtext.ScrolledText(main_frame, width=50, height=4)
-        self.experience_text.grid(row=row, column=1, sticky="ew", pady=5)
+        self.create_input_field(input_inner, row, "🏢 Experience", height=5, var_name="experience_text")
         row += 1
-
-        # Generate Button
-        self.generate_btn = tk.Button(main_frame, text="Generate Resume",
-                                     command=self.generate_resume,
-                                     bg="#4CAF50", fg="white",
-                                     font=("Arial", 12, "bold"),
-                                     padx=20, pady=10)
-        self.generate_btn.grid(row=row, column=0, columnspan=2, pady=20)
-        row += 1
-
-        # Output area
-        ttk.Label(main_frame, text="Generated Resume:").grid(row=row, column=0, sticky=tk.W, pady=5)
-        row += 1
-
-        self.output_text = scrolledtext.ScrolledText(main_frame, width=70, height=10)
-        self.output_text.grid(row=row, column=0, columnspan=2, sticky="ew", pady=5)
-        row += 1
-
-        # Save Button
-        self.save_btn = tk.Button(main_frame, text="Save as PDF",
-                                 command=self.save_to_pdf,
-                                 bg="#2196F3", fg="white",
-                                 font=("Arial", 10, "bold"),
-                                 padx=15, pady=8)
-        self.save_btn.grid(row=row, column=0, columnspan=2, pady=10)
 
         # Configure grid weights
-        main_frame.columnconfigure(1, weight=1)
+        input_inner.columnconfigure(1, weight=1)
+
+        # Action buttons
+        button_frame = tk.Frame(main_frame, bg=self.bg_gradient_start)
+        button_frame.pack(pady=25)
+
+        # Generate button with custom styling
+        self.generate_btn = ModernButton(button_frame, "✨ Generate Resume",
+                                        self.generate_resume,
+                                        bg_color=self.accent_color,
+                                        hover_color=self.accent_hover,
+                                        width=250, height=55)
+        self.generate_btn.pack()
+
+        # Output section card
+        output_card = tk.Frame(main_frame, bg=self.card_bg)
+        output_card.pack(fill="both", expand=True, padx=40, pady=(0, 20))
+
+        output_inner = tk.Frame(output_card, bg=self.card_bg)
+        output_inner.pack(padx=30, pady=25, fill="both", expand=True)
+
+        output_title = tk.Label(output_inner, text="📄 Generated Resume",
+                               font=("Segoe UI", 15, "bold"),
+                               fg=self.text_color, bg=self.card_bg)
+        output_title.pack(anchor="w", pady=(0, 15))
+
+        # Output text with custom styling
+        self.output_text = scrolledtext.ScrolledText(output_inner,
+                                                     font=("Consolas", 10),
+                                                     bg="#0F172A", fg="#E2E8F0",
+                                                     insertbackground="white",
+                                                     relief="flat",
+                                                     padx=15, pady=15,
+                                                     wrap=tk.WORD)
+        self.output_text.pack(fill="both", expand=True)
+
+        # Save button
+        save_button_frame = tk.Frame(main_frame, bg=self.bg_gradient_start)
+        save_button_frame.pack(pady=(10, 40))
+
+        self.save_btn = ModernButton(save_button_frame, "💾 Save as PDF",
+                                     self.save_to_pdf,
+                                     bg_color="#10B981",
+                                     hover_color="#059669",
+                                     width=200, height=50)
+        self.save_btn.pack()
+
+    def create_input_field(self, parent, row, label_text, is_entry=False, height=1, var_name=None):
+        """Create a modern input field with label"""
+        # Label
+        label = tk.Label(parent, text=label_text,
+                        font=("Segoe UI", 11, "bold"),
+                        fg=self.text_color, bg=self.card_bg)
+        label.grid(row=row, column=0, sticky="nw", pady=(8, 0), padx=(0, 20))
+
+        # Input field
+        if is_entry:
+            entry = tk.Entry(parent, font=("Segoe UI", 11),
+                           bg="#0F172A", fg="#E2E8F0",
+                           insertbackground="white",
+                           relief="flat", bd=0)
+            entry.grid(row=row, column=1, sticky="ew", pady=8, ipady=8, ipadx=10)
+            setattr(self, var_name, entry)
+        else:
+            text_widget = scrolledtext.ScrolledText(parent,
+                                                   font=("Segoe UI", 10),
+                                                   bg="#0F172A", fg="#E2E8F0",
+                                                   insertbackground="white",
+                                                   relief="flat", bd=0,
+                                                   height=height, wrap=tk.WORD)
+            text_widget.grid(row=row, column=1, sticky="ew", pady=8, padx=(0, 0))
+            setattr(self, var_name, text_widget)
 
     def generate_resume(self):
         # Get input values
@@ -144,7 +314,7 @@ class ResumeGeneratorApp:
 
         # Validate inputs
         if not name or not email:
-            messagebox.showwarning("Warning", "Please enter at least your name and email")
+            messagebox.showwarning("⚠️ Missing Information", "Please enter at least your name and email")
             return
 
         mode = self.mode_var.get()
@@ -159,16 +329,18 @@ class ResumeGeneratorApp:
                 mode = "template"
             else:
                 # Use AI mode in background thread
-                self.generate_btn.config(state="disabled", text="Loading AI Model...")
-                self.status_label.config(text="Loading AI model (first time may take 1-2 minutes)...", fg="orange")
+                self.generate_btn.text = "🤖 Loading AI..."
+                self.generate_btn.draw_button(self.generate_btn.bg_color)
+                self.status_label.config(text="● Loading AI model (first time may take 1-2 minutes)...", fg="#F59E0B")
                 threading.Thread(target=self._generate_with_ai,
                                args=(name, email, phone, education, skills, experience),
                                daemon=True).start()
                 return
 
         # Use template mode (fast)
-        self.generate_btn.config(state="disabled", text="Generating...")
-        self.status_label.config(text="Generating...", fg="blue")
+        self.generate_btn.text = "⚙️ Generating..."
+        self.generate_btn.draw_button(self.generate_btn.bg_color)
+        self.status_label.config(text="● Generating your resume...", fg="#3B82F6")
         self.root.update()
 
         try:
@@ -178,15 +350,16 @@ class ResumeGeneratorApp:
 
             self.output_text.delete("1.0", tk.END)
             self.output_text.insert("1.0", resume_text)
-            self.status_label.config(text="Resume generated successfully!", fg="green")
-            messagebox.showinfo("Success", "Resume generated successfully!")
+            self.status_label.config(text="● Resume generated successfully!", fg="#10B981")
+            messagebox.showinfo("✅ Success", "Your professional resume is ready!")
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate resume: {str(e)}")
-            self.status_label.config(text="Error occurred", fg="red")
+            messagebox.showerror("❌ Error", f"Failed to generate resume: {str(e)}")
+            self.status_label.config(text="● Error occurred", fg="#EF4444")
 
         finally:
-            self.generate_btn.config(state="normal", text="Generate Resume")
+            self.generate_btn.text = "✨ Generate Resume"
+            self.generate_btn.draw_button(self.generate_btn.bg_color)
 
     def _generate_with_ai(self, name, email, phone, education, skills, experience):
         """Generate resume using free AI model in background thread"""
@@ -194,7 +367,7 @@ class ResumeGeneratorApp:
             # Load model if not already loaded
             if not self.model_loaded:
                 self.root.after(0, lambda: self.status_label.config(
-                    text="Downloading AI model (only once, ~1GB)...", fg="orange"))
+                    text="● Downloading AI model (only once, ~1GB)...", fg="#F59E0B"))
 
                 # Using FLAN-T5 - better for instruction following
                 model_name = "google/flan-t5-base"
@@ -204,10 +377,10 @@ class ResumeGeneratorApp:
                 self.model_loaded = True
 
                 self.root.after(0, lambda: self.status_label.config(
-                    text="Model loaded! Generating resume...", fg="blue"))
+                    text="● Model loaded! Generating resume...", fg="#3B82F6"))
             else:
                 self.root.after(0, lambda: self.status_label.config(
-                    text="Generating resume with AI...", fg="blue"))
+                    text="● Generating resume with AI...", fg="#3B82F6"))
 
             # Create AI-enhanced resume
             resume_text = self.create_ai_resume(name, email, phone, education, skills, experience)
@@ -216,19 +389,21 @@ class ResumeGeneratorApp:
             self.root.after(0, lambda: self.output_text.delete("1.0", tk.END))
             self.root.after(0, lambda: self.output_text.insert("1.0", resume_text))
             self.root.after(0, lambda: self.status_label.config(
-                text="AI Resume generated successfully!", fg="green"))
-            self.root.after(0, lambda: messagebox.showinfo("Success",
+                text="● AI Resume generated successfully!", fg="#10B981"))
+            self.root.after(0, lambda: messagebox.showinfo("✅ Success",
                 "AI-powered resume generated successfully!"))
 
         except Exception as e:
-            self.root.after(0, lambda: messagebox.showerror("Error",
+            self.root.after(0, lambda: messagebox.showerror("❌ Error",
                 f"AI generation failed: {str(e)}\n\nTry Template mode instead."))
             self.root.after(0, lambda: self.status_label.config(
-                text="AI failed - use Template mode", fg="red"))
+                text="● AI failed - use Template mode", fg="#EF4444"))
 
         finally:
-            self.root.after(0, lambda: self.generate_btn.config(
-                state="normal", text="Generate Resume"))
+            def reset_button():
+                self.generate_btn.text = "✨ Generate Resume"
+                self.generate_btn.draw_button(self.generate_btn.bg_color)
+            self.root.after(0, reset_button)
 
     def create_ai_resume(self, name, email, phone, education, skills, experience):
         """Create resume using AI - GENERATES FULL CONTENT based on your input"""
@@ -715,7 +890,7 @@ PROFESSIONAL EXPERIENCE
         resume_text = self.output_text.get("1.0", tk.END).strip()
 
         if not resume_text:
-            messagebox.showwarning("Warning", "No resume to save. Generate a resume first.")
+            messagebox.showwarning("⚠️ No Resume", "No resume to save. Generate a resume first.")
             return
 
         file_path = filedialog.asksaveasfilename(
@@ -752,10 +927,10 @@ PROFESSIONAL EXPERIENCE
 
             doc.build(elements)
 
-            messagebox.showinfo("Success", f"Resume saved to {file_path}")
+            messagebox.showinfo("✅ Success", f"Resume saved successfully!\n\n{file_path}")
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save PDF: {str(e)}")
+            messagebox.showerror("❌ Error", f"Failed to save PDF: {str(e)}")
 
 def main():
     root = tk.Tk()
