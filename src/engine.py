@@ -4,17 +4,21 @@ Handles both template-based and AI-powered resume generation
 """
 import random
 import warnings
-warnings.filterwarnings('ignore')
+import os
 
+# Suppress all warnings for cleaner output
+warnings.filterwarnings('ignore')
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow warnings
+os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'  # Disable Hugging Face telemetry
+
+# Check AI availability without importing (faster startup)
+AI_AVAILABLE = False
 try:
-    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-    import torch
-    AI_AVAILABLE = True
-except ImportError:
+    import importlib.util
+    if importlib.util.find_spec("transformers") is not None:
+        AI_AVAILABLE = True
+except:
     AI_AVAILABLE = False
-    AutoTokenizer = None
-    AutoModelForSeq2SeqLM = None
-    torch = None
 
 
 class ResumeEngine:
@@ -28,16 +32,29 @@ class ResumeEngine:
     def load_ai_model(self):
         """Load AI model for enhanced generation"""
         if not AI_AVAILABLE:
+            print("AI libraries not available")
             return False
 
         try:
             if not self.model_loaded:
-                self.ai_tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
-                self.ai_model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
+                print("Loading AI model... (this may take a moment)")
+
+                # Import only when needed (lazy loading for faster startup)
+                from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+                import logging
+
+                # Suppress transformers logging but not errors
+                logging.getLogger("transformers").setLevel(logging.ERROR)
+
+                # Using FLAN-T5 - better for instruction following (ORIGINAL MODEL)
+                model_name = "google/flan-t5-base"
+                self.ai_tokenizer = AutoTokenizer.from_pretrained(model_name)
+                self.ai_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
                 self.model_loaded = True
+                print("AI model loaded successfully!")
             return True
         except Exception as e:
-            print(f"Failed to load AI model: {e}")
+            print(f"Failed to load AI model: {str(e)}")
             return False
 
     def generate_resume(self, data, mode='template'):
@@ -157,25 +174,56 @@ class ResumeEngine:
     def ai_generate_summary(self, education, skills, experience):
         """AI-generated professional summary"""
         try:
-            context = f"Education: {education}\nSkills: {skills}\nExperience: {experience[:200]}"
-            prompt = f"Write a professional 3-sentence resume summary for someone with: {context}"
+            # Extract key info
+            skill_list = [s.strip() for s in skills.replace('\n', ',').split(',') if s.strip()][:5]
+            skills_text = ', '.join(skill_list) if skill_list else "various skills"
 
-            inputs = self.ai_tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
+            # Simple, direct prompt for FLAN-T5
+            prompt = f"""Write a professional resume summary (2-3 sentences) for someone with:
+- Education: {education[:80]}
+- Skills: {skills_text}
+- Experience: {experience[:100]}
+
+The summary should highlight their strengths and career goals."""
+
+            print(f"Generating AI summary...")
+            inputs = self.ai_tokenizer(prompt, return_tensors="pt", max_length=400, truncation=True)
             outputs = self.ai_model.generate(
                 inputs.input_ids,
-                max_length=150,
-                min_length=50,
-                temperature=0.7,
+                max_length=180,
+                min_length=30,
+                temperature=0.85,
                 do_sample=True,
-                top_p=0.95,
+                top_p=0.90,
+                repetition_penalty=1.4,
             )
 
-            summary = self.ai_tokenizer.decode(outputs[0], skip_special_tokens=True)
+            summary = self.ai_tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
-            if len(summary) > 100 and len(summary) < 500:
+            print(f"Raw AI summary: {summary}")
+
+            # Clean up - remove prompt repetition
+            if summary.lower().startswith(('write', 'create', 'summary', 'the summary')):
+                # Try to extract actual content after colon or newline
+                parts = summary.split(':', 1)
+                if len(parts) > 1:
+                    summary = parts[1].strip()
+                else:
+                    parts = summary.split('\n', 1)
+                    if len(parts) > 1:
+                        summary = parts[1].strip()
+
+            # Remove any remaining instruction artifacts
+            summary = summary.replace('Write a professional resume summary', '').replace('(2-3 sentences)', '').strip()
+
+            # Validate the cleaned output
+            if len(summary) > 40 and len(summary) < 500:
+                print(f"✓ AI generated summary: {summary[:100]}...")
                 return summary
-        except:
-            pass
+            else:
+                print(f"✗ AI summary too short/long ({len(summary)} chars), using template")
+        except Exception as e:
+            print(f"AI summary generation failed: {str(e)}")
 
         return self.generate_summary(education, skills, experience)
 
@@ -187,43 +235,106 @@ class ResumeEngine:
         lines = [line.strip() for line in experience.split('\n') if line.strip()]
         formatted = []
         current_job = None
+        i = 0
 
-        for line in lines:
+        while i < len(lines):
+            line = lines[i]
+
+            # Detect job titles (short lines, no bullets, usually company/title)
             if len(line) < 100 and not line.startswith(('•', '-', '  ')):
+                # This is a job title or company
+                if formatted:
+                    formatted.append("")  # Blank line between jobs
+                formatted.append(line.upper())
                 current_job = line
-                formatted.append(f"\n{line.upper()}" if formatted else line.upper())
-            else:
-                responsibilities = self.ai_generate_job_responsibilities(
-                    current_job or "Professional", skills, education
-                )
-                if responsibilities:
-                    formatted.extend(responsibilities)
-                    current_job = None
 
-        return '\n'.join(formatted) if formatted else self.format_experience(experience, skills)
+                # Generate AI responsibilities for this job
+                print(f"\nGenerating AI content for: {current_job}")
+                responsibilities = self.ai_generate_job_responsibilities(
+                    current_job, skills, education
+                )
+                formatted.extend(responsibilities)
+
+                # Skip any existing bullet points for this job (we generated new ones)
+                i += 1
+                while i < len(lines) and (lines[i].startswith(('•', '-', '  ')) or len(lines[i]) > 100):
+                    i += 1
+                continue
+
+            i += 1
+
+        result = '\n'.join(formatted) if formatted else self.format_experience(experience, skills)
+        print(f"\nGenerated experience section ({len(result)} chars)")
+        return result
 
     def ai_generate_job_responsibilities(self, job_title, skills, education):
         """Generate AI-powered job responsibilities"""
         try:
-            prompt = f"List 4 professional achievements for a {job_title} with skills in {skills[:100]}"
+            # FLAN-T5 works best with clear, simple instructions
+            skills_text = skills[:100] if skills else "various professional skills"
 
-            inputs = self.ai_tokenizer(prompt, return_tensors="pt", max_length=256, truncation=True)
+            # Simpler prompt that FLAN-T5 can handle better
+            prompt = f"""Create 4 professional resume bullet points for a {job_title} position using these skills: {skills_text}
+
+Each bullet point should describe an achievement or responsibility. Be specific and use action verbs."""
+
+            print(f"Generating AI responsibilities for: {job_title}...")
+
+            inputs = self.ai_tokenizer(prompt, return_tensors="pt", max_length=400, truncation=True)
             outputs = self.ai_model.generate(
                 inputs.input_ids,
-                max_length=200,
-                min_length=50,
-                temperature=0.8,
+                max_length=250,
+                min_length=60,
+                temperature=0.95,
                 do_sample=True,
-                num_beams=4,
+                top_p=0.92,
+                repetition_penalty=1.5,
+                no_repeat_ngram_size=2,
+                num_return_sequences=1,
             )
 
-            result = self.ai_tokenizer.decode(outputs[0], skip_special_tokens=True)
-            bullets = [f"  • {line.strip()}" for line in result.split('\n') if line.strip()]
+            result = self.ai_tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
-            if bullets and len(bullets) >= 2:
+            print(f"Raw AI output: {result[:200]}...")
+
+            # Clean up the output - FLAN-T5 sometimes repeats the prompt
+            # Remove the prompt if it appears in the output
+            lines_to_check = result.split('\n')
+            clean_lines = []
+
+            for line in lines_to_check:
+                line = line.strip()
+                # Skip lines that are just repeating the prompt
+                if any(skip in line.lower() for skip in ['create', 'bullet point', 'resume', 'should describe', 'each bullet']):
+                    continue
+                # Remove common bullet markers and numbering
+                line = line.lstrip('•-*1234567890. ')
+                # Keep lines that look like actual content
+                if len(line) > 15 and len(line) < 300:
+                    clean_lines.append(line)
+
+            # Format as bullets
+            bullets = [f"  • {line}" for line in clean_lines]
+
+            # If we didn't get enough bullets, try splitting by common patterns
+            if len(bullets) < 2:
+                # Try splitting on periods or common separators
+                sentences = result.replace('. ', '.|').split('|')
+                bullets = []
+                for sent in sentences:
+                    sent = sent.strip().strip('.')
+                    if len(sent) > 20 and len(sent) < 250 and not any(skip in sent.lower() for skip in ['create', 'bullet', 'write', 'describe']):
+                        bullets.append(f"  • {sent}")
+
+            # If we got good bullets, use them
+            if len(bullets) >= 2:
+                print(f"✓ AI generated {len(bullets)} creative bullets!")
                 return bullets[:4]
-        except:
-            pass
+            else:
+                print(f"✗ AI output didn't produce valid bullets, using template")
+
+        except Exception as e:
+            print(f"AI generation error: {str(e)}")
 
         return self.generate_template_responsibilities(job_title, skills)
 

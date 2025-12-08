@@ -7,6 +7,40 @@ A professional desktop application for generating AI-powered resumes with modern
 
 ---
 
+## 🚀 Quick Start
+
+### For First-Time Setup
+```powershell
+# Clone repository
+git clone <repository-url>
+cd Ai_Resume
+
+# Setup virtual environment and install dependencies
+.\venv\Scripts\activate.ps1
+pip install -r requirements.txt
+
+# Launch application
+.\run.ps1
+```
+
+### Technology at a Glance
+- **Language:** Python 3.8+
+- **GUI:** Tkinter (built-in, cross-platform)
+- **AI Model:** Google FLAN-T5-Base (220M parameters)
+- **ML Framework:** Transformers 4.44.0 + PyTorch 2.2.0+
+- **PDF Export:** ReportLab 4.0.7
+- **Architecture:** Modular MVC pattern
+
+### Key Features
+✨ **Dual Generation Modes:** Template (instant) & AI (creative)  
+🎨 **Modern Dark UI:** Professional, responsive interface  
+📄 **PDF Export:** ATS-friendly, print-ready documents  
+⚡ **Fast Startup:** < 2 seconds with lazy loading  
+🔒 **Privacy-First:** 100% local processing, no data transmission  
+🌐 **Cross-Platform:** Windows, macOS, Linux
+
+---
+
 ## 📋 Table of Contents
 
 1. [Introduction](#1-introduction)
@@ -101,7 +135,7 @@ AI Resume Generator Pro is a desktop application that automates the creation of 
 |------|------------|
 | **AI** | Artificial Intelligence |
 | **ATS** | Applicant Tracking System - Software used by employers to manage job applications |
-| **BART** | Bidirectional and Auto-Regressive Transformers - AI model used for text generation |
+| **FLAN-T5** | Fine-tuned Language Net - Text-to-Text Transfer Transformer (Google AI model) |
 | **CV** | Curriculum Vitae |
 | **GUI** | Graphical User Interface |
 | **ML** | Machine Learning |
@@ -120,7 +154,7 @@ AI Resume Generator Pro is a desktop application that automates the creation of 
 - Hugging Face Transformers: https://huggingface.co/docs/transformers/
 - ReportLab Documentation: https://www.reportlab.com/docs/
 - PEP 8 Style Guide: https://peps.python.org/pep-0008/
-- Facebook BART Model: https://huggingface.co/facebook/bart-large-cnn
+- Google FLAN-T5 Model: https://huggingface.co/google/flan-t5-base
 
 ### 1.5 Overview
 
@@ -143,7 +177,7 @@ This SRS document is organized into 11 main sections:
 AI Resume Generator Pro is a standalone desktop application that operates independently without requiring backend servers or internet connectivity (after initial setup). The system interfaces with:
 
 - **Local File System:** For saving PDF resumes
-- **AI Models:** Pre-trained transformer models (Facebook BART)
+- **AI Models:** Pre-trained transformer models (Google FLAN-T5)
 - **Python Environment:** Virtual environment with required libraries
 - **Operating System:** Windows, macOS, or Linux
 
@@ -164,21 +198,42 @@ AI Resume Generator Pro is a standalone desktop application that operates indepe
        ▼                  ▼                 ▼
 ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
 │ File System │  │  AI Models   │  │ PDF Exporter │
-│   (Local)   │  │   (BART)     │  │ (ReportLab)  │
+│   (Local)   │  │  (FLAN-T5)   │  │ (ReportLab)  │
 └─────────────┘  └──────────────┘  └──────────────┘
 ```
 
 ### 2.2 Product Functions
 
 **Primary Functions:**
+
 1. **User Input Collection**
    - Accept personal information (name, email, phone)
-   - Capture education history
-   - Record skills and competencies
-   - Document work experience
+   - Capture education history (multi-line text)
+   - Record skills and competencies (comma or line-separated)
+   - Document work experience (structured or free-form)
+   - Real-time input validation
+   - Auto-save to memory (no persistent storage)
 
-2. **Resume Generation**
-   - Template-based generation (fast mode)
+2. **Dual-Mode Resume Generation**
+   
+   **Template Mode (Default):**
+   - Rule-based content generation
+   - Role-specific responsibility libraries
+   - Professional language templates
+   - Industry-standard formatting
+   - Generation time: < 0.5 seconds
+   - No internet required
+   - Consistent, reliable output
+   
+   **AI Mode (Enhanced):**
+   - FLAN-T5 model integration
+   - Context-aware content generation
+   - Personalized professional summaries
+   - Custom achievement bullet points
+   - Generation time: 8-10 seconds (cached model)
+   - First use: 15-20 seconds (includes model loading)
+   - Creative, varied output
+   - Automatic fallback to template mode on error
    - AI-powered generation (enhanced mode)
    - Professional summary creation
    - Skills categorization
@@ -332,7 +387,7 @@ AI Resume Generator Pro is a standalone desktop application that operates indepe
 - **Priority:** Medium
 - **Description:** Generate enhanced resume using AI models
 - **Input:** User data dictionary
-- **Processing:** Load BART model, generate enhanced content
+- **Processing:** Load FLAN-T5 model, generate enhanced content
 - **Output:** AI-enhanced resume text
 - **Performance:** Complete in < 10 seconds
 - **Error Handling:** Fallback to template mode on failure
@@ -534,12 +589,19 @@ AI Resume Generator Pro is a standalone desktop application that operates indepe
 | Sentencepiece | 0.1.99+ | Tokenization | Python API |
 
 **SW-4: AI Model Interface**
-- **Model:** facebook/bart-large-cnn
-- **Source:** Hugging Face Model Hub
-- **Format:** PyTorch checkpoint
-- **Size:** ~1.6GB
-- **Cache Location:** ~/.cache/huggingface/
-- **API:** Transformers AutoModel and AutoTokenizer
+- **Model:** google/flan-t5-base
+- **Type:** Text-to-Text Transfer Transformer (T5), instruction-tuned
+- **Architecture:** Encoder-Decoder Transformer
+- **Parameters:** 220 million
+- **Source:** Hugging Face Model Hub (https://huggingface.co/google/flan-t5-base)
+- **Format:** PyTorch checkpoint (.bin files)
+- **Size:** ~1GB compressed, ~900MB on disk
+- **Cache Location:** `~/.cache/huggingface/hub/` (Windows: `%USERPROFILE%\.cache\huggingface\`)
+- **API:** Transformers `AutoModelForSeq2SeqLM` and `AutoTokenizer`
+- **Tokenizer:** SentencePiece-based tokenizer
+- **License:** Apache 2.0 (Commercial use allowed)
+- **Download:** Automatic on first AI mode use (requires internet)
+- **Inference:** CPU-based (no GPU required)
 
 **SW-5: File System Interface**
 - **Read Operations:** Model cache, configuration files
@@ -1567,7 +1629,7 @@ Requirements → Core Dev → AI Integration → Testing → Release
 
 **Technical Terms:**
 - **Transformer:** Neural network architecture for natural language processing
-- **BART:** Bidirectional and Auto-Regressive Transformers model
+- **FLAN-T5:** Fine-tuned Language Net - Text-to-Text Transfer Transformer (Google model)
 - **Tokenization:** Process of breaking text into tokens for AI processing
 - **Inference:** Running AI model to generate predictions/outputs
 - **PDF/A:** ISO standard for long-term document preservation
@@ -1588,7 +1650,7 @@ Requirements → Core Dev → AI Integration → Testing → Release
 
 1. Python Software Foundation. (2025). Python Documentation. https://docs.python.org/3/
 2. Hugging Face. (2025). Transformers Documentation. https://huggingface.co/docs/transformers/
-3. Lewis, M., et al. (2019). BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation. arXiv:1910.13461
+3. Chung, H. W., et al. (2022). Scaling Instruction-Finetuned Language Models. arXiv:2210.11416
 4. ReportLab. (2025). ReportLab User Guide. https://www.reportlab.com/docs/
 5. IEEE. (1998). IEEE Recommended Practice for Software Requirements Specifications. IEEE Std 830-1998.
 
@@ -1820,20 +1882,176 @@ Ai_Resume/
 
 ### Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| GUI Framework | Tkinter | Cross-platform desktop interface |
-| AI Model | Facebook BART | Text generation and summarization |
-| ML Framework | Transformers/PyTorch | AI model inference |
-| PDF Generation | ReportLab | Professional document export |
-| Language | Python 3.8+ | Application development |
+| Component | Technology | Version | Purpose |
+|-----------|-----------|---------|---------|
+| **Language** | Python | 3.8+ | Core application development |
+| **GUI Framework** | Tkinter | Built-in | Cross-platform desktop interface |
+| **AI Model** | Google FLAN-T5-Base | - | Text generation and instruction following |
+| **ML Framework** | Transformers (Hugging Face) | 4.44.0 | AI model loading and inference |
+| **ML Backend** | PyTorch | 2.2.0+ | Neural network computations |
+| **PDF Generation** | ReportLab | 4.0.7 | Professional document export |
+| **Tokenizer** | SentencePiece | 0.1.99+ | Text tokenization for AI model |
+
+### Architecture Components
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Desktop Application                    │
+│                    (Tkinter GUI)                         │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+        ┌───────────────┴───────────────┐
+        │                               │
+        ▼                               ▼
+┌──────────────┐              ┌──────────────────┐
+│ Template     │              │   AI Engine      │
+│ Engine       │              │  (FLAN-T5)       │
+│ (Fast)       │              │  (Enhanced)      │
+└──────┬───────┘              └────────┬─────────┘
+       │                               │
+       └───────────┬───────────────────┘
+                   │
+                   ▼
+          ┌─────────────────┐
+          │  Resume         │
+          │  Formatter      │
+          └────────┬────────┘
+                   │
+                   ▼
+          ┌─────────────────┐
+          │  PDF Exporter   │
+          │  (ReportLab)    │
+          └─────────────────┘
+```
 
 ### Data Flow
 ```
-User Input → Validation → Engine (Template/AI) → Formatting → Display → PDF Export
-                                      ↓
-                                 AI Model (optional)
+User Input → Validation → Engine Selection → Content Generation → Formatting → Display → PDF Export
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+              Template Mode          AI Mode
+              (Rule-based)      (FLAN-T5 Model)
+                    │                   │
+                    └─────────┬─────────┘
+                              │
+                        Resume Text
 ```
+
+---
+
+## 🔧 Technical Implementation Details
+
+### AI Model Specification
+
+**Model Name:** `google/flan-t5-base`  
+**Model Type:** Text-to-Text Transfer Transformer (T5)  
+**Training:** Fine-tuned Language Net (FLAN) - Instruction-tuned  
+**Parameters:** 220 million  
+**Size:** ~1GB compressed, ~900MB on disk  
+**Source:** Hugging Face Model Hub  
+**License:** Apache 2.0  
+
+**Capabilities:**
+- Instruction following and task execution
+- Text generation based on prompts
+- Resume content enhancement
+- Professional summary creation
+- Achievement bullet point generation
+
+**Limitations:**
+- Requires ~2GB RAM during inference
+- First use requires internet for model download
+- Cached locally after first download
+- May produce inconsistent results (inherent to AI)
+
+### Code Architecture
+
+**Modular Design:**
+```
+src/
+├── __init__.py              # Package initialization
+├── config.py                # Configuration constants (colors, settings)
+├── engine.py                # Resume generation engine (474 lines)
+│   ├── ResumeEngine         # Main engine class
+│   ├── Template methods     # Rule-based generation
+│   └── AI methods           # FLAN-T5 integration
+├── pdf_exporter.py          # PDF creation module
+│   └── PDFExporter          # ReportLab wrapper
+└── ui/
+    ├── __init__.py
+    ├── main_window.py       # Main application window
+    │   └── ResumeGeneratorApp  # Tkinter GUI
+    └── widgets.py           # Custom UI components
+        └── ModernButton     # Styled button widget
+```
+
+**Design Patterns Used:**
+- **Strategy Pattern:** Template vs AI generation modes
+- **Factory Pattern:** Resume generation strategy selection
+- **MVC Pattern:** Separation of UI (View) and Logic (Model/Controller)
+- **Lazy Loading:** AI model loaded only when needed
+- **Singleton-like:** Single configuration instance
+
+### Performance Optimizations
+
+**Startup Optimization:**
+- Lazy import of AI libraries (saves 8-10 seconds)
+- AI availability check without full import
+- Deferred model loading until AI mode selected
+
+**Runtime Optimization:**
+- Template mode: < 0.5 second generation
+- AI mode: 8-10 seconds (after model cached)
+- Memory-efficient text processing
+- Minimal object creation
+
+**Resource Management:**
+- Virtual environment isolation
+- Automatic cleanup after generation
+- No persistent data storage
+- Model caching in user directory
+
+### Dependencies Breakdown
+
+```python
+# Core Dependencies
+reportlab==4.0.7        # PDF generation (3MB)
+  └── Required for all users
+
+# AI Dependencies (Optional but recommended)
+transformers==4.44.0    # Hugging Face library (200MB)
+torch>=2.2.0           # PyTorch framework (800MB)
+sentencepiece>=0.1.99  # Tokenization (2MB)
+  └── Required only for AI mode
+
+# Built-in (No installation needed)
+tkinter                # GUI framework
+threading             # Async operations
+warnings              # Error suppression
+os                    # Environment variables
+random                # Template variation
+```
+
+### Platform-Specific Details
+
+**Windows:**
+- PowerShell scripts for automation
+- Native Tkinter with Windows theme
+- File dialogs use Windows Explorer
+- Paths use backslash separators
+
+**macOS:**
+- Bash scripts for automation
+- Native Tkinter with Aqua theme
+- File dialogs use Finder
+- Paths use forward slash separators
+
+**Linux:**
+- Bash scripts for automation
+- Tkinter with GTK or Qt theme
+- File dialogs use native file manager
+- Paths use forward slash separators
 
 ---
 
