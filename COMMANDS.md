@@ -1,50 +1,171 @@
-# Quick Commands Reference
+# Development Commands
 
-## After Cloning on New Device
+## Project Structure
+```
+Ai_Resume/
+├── app.py                  # Main entry point
+├── src/                    # Source code
+│   ├── config.py          # Configuration
+│   ├── engine.py          # Resume generation
+│   ├── pdf_exporter.py    # PDF export
+│   └── ui/                # User interface
+│       ├── main_window.py # Main UI
+│       └── widgets.py     # Custom widgets
+└── requirements.txt        # Dependencies
+```
 
-Run these commands in PowerShell **in order**:
+## Quick Start
 
+### Run Application
 ```powershell
-# 1. Navigate to project
-cd C:\Users\YourUsername\PycharmProjects\AI_RESUME
+# Using run script (recommended)
+.\run.ps1
 
-# 2. Remove old virtual environment (if exists)
-Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+# Manual
+.\.venv\Scripts\Activate.ps1
+python app.py
+```
 
-# 3. Create new virtual environment
+## Development Commands
+
+### Setup New Environment
+```powershell
+# Automated setup
+.\setup_new_device.ps1
+
+# Manual setup
 python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-# 4. Activate virtual environment
+### Activate Virtual Environment
+```powershell
+# Windows PowerShell
 .\.venv\Scripts\Activate.ps1
 
-# 5. Install dependencies
+# Windows CMD
+.\.venv\Scripts\activate.bat
+
+# macOS/Linux
+source .venv/bin/activate
+```
+
+### Package Management
+```powershell
+# Install dependencies
 pip install -r requirements.txt
 
-# 6. Run the application
-python resume_generator.py
+# Add new package
+pip install <package-name>
+pip freeze > requirements.txt
+
+# Update all packages
+pip list --outdated
+pip install --upgrade <package-name>
 ```
 
-## Daily Use (After Initial Setup)
+### Running Components
 
+#### Run Main Application
 ```powershell
-# Activate and run
+python app.py
+```
+
+#### Test Individual Modules
+```powershell
+# Test engine
+python -c "from src.engine import ResumeEngine; e = ResumeEngine(); print('Engine OK')"
+
+# Test config
+python -c "from src.config import COLORS; print('Config OK')"
+```
+
+## Code Quality
+
+### Style Checking
+```powershell
+# Install tools
+pip install flake8 autopep8
+
+# Check style
+flake8 src/ app.py
+
+# Auto-format
+autopep8 --in-place --recursive src/ app.py
+```
+
+### Type Checking
+```powershell
+# Install mypy
+pip install mypy
+
+# Run type check
+mypy src/ app.py
+```
+
+## Troubleshooting
+
+### Reset Virtual Environment
+```powershell
+Remove-Item -Recurse -Force .venv
+.\setup_new_device.ps1
+```
+
+### Clear Python Cache
+```powershell
+Get-ChildItem -Path . -Include __pycache__,*.pyc -Recurse -Force | Remove-Item -Recurse -Force
+```
+
+### Check Python Version
+```powershell
+python --version
+```
+
+### Verify Installation
+```powershell
 .\.venv\Scripts\Activate.ps1
-python resume_generator.py
+pip list
 ```
 
-## One-Line Command (Daily Use)
+## Git Commands
 
+### Initial Setup
 ```powershell
-.\.venv\Scripts\Activate.ps1; python resume_generator.py
+git init
+git add .
+git commit -m "Initial commit"
 ```
 
-## Fix Execution Policy Error
-
-If you get "cannot be loaded because running scripts is disabled":
-
+### Daily Workflow
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Check status
+git status
+
+# Add changes
+git add .
+
+# Commit
+git commit -m "Description of changes"
+
+# Push to remote
+git push origin main
 ```
 
-Then try activating again.
+### Useful Git Commands
+```powershell
+# View history
+git log --oneline
+
+# Create branch
+git checkout -b feature-name
+
+# Merge branch
+git checkout main
+git merge feature-name
+
+# Pull latest
+git pull origin main
+```
 

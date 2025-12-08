@@ -7,7 +7,7 @@ Write-Host "==================================="
 Write-Host ""
 
 # Activate virtual environment and run
-& .\.venv\Scripts\python.exe resume_generator.py
+& .\.venv\Scripts\python.exe app.py
 
 # Pause to see any error messages
 Write-Host ""
