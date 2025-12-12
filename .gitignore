@@ -26,3 +26,11 @@ ENV/
 # Backup files
 *.backup
 
+# OS files
+.DS_Store
+Thumbs.db
+# Database files
+*.sqlite3
+*.db
+
+

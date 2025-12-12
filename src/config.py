@@ -2,24 +2,28 @@
 AI Resume Generator - Configuration
 """
 
-# UI Color Scheme
+# UI Color Scheme - Girly Theme
 COLORS = {
-    'bg_gradient_start': '#0F172A',  # Dark blue
-    'bg_gradient_end': '#1E293B',
-    'accent_color': '#6366F1',  # Indigo
-    'accent_hover': '#4F46E5',
-    'card_bg': '#1E293B',
+    'bg_gradient_start': '#1a0a1e',  # Deep purple-black
+    'bg_gradient_end': '#2d1b3d',
+    'accent_color': '#E879F9',  # Bright purple-pink
+    'accent_hover': '#D946EF',
+    'card_bg': '#2d1b3d',
     'text_color': '#F1F5F9',
-    'text_secondary': '#94A3B8',
-    'success': '#10B981',
-    'error': '#EF4444',
+    'text_secondary': '#C4B5FD',  # Light lavender
+    'success': '#F472B6',  # Pink
+    'error': '#FB7185',  # Rose
+    'pink': '#FF6B9D',
+    'lavender': '#A78BFA',
+    'mint': '#6EE7B7',
+    'coral': '#FCA5A5',
 }
 
 # Window Configuration
 WINDOW_CONFIG = {
     'title': 'AI Resume Generator Pro',
-    'width': 1100,
-    'height': 800,
+    'width': 950,
+    'height': 750,
 }
 
 # AI Model Configuration
