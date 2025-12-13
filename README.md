@@ -91,6 +91,30 @@ python app.py
 
 ---
 
+## 🧩 Architecture Overview
+
+This is a single desktop application (no separate client/server and no external API). Modules interact locally:
+
+```
++-------------------+
+|     app.py        |  Entry point; wires UI and engine
++---------+---------+
+          |
+          v
++-------------------+        +-------------------+
+|   UI (Tkinter)    | -----> |  pdf_exporter.py  |  Export to PDF
+| src/ui/*.py       |        +-------------------+
++---------+---------+
+          |
+          v
++-------------------+        +-------------------+
+|   engine.py       | <----> |   database.py     |  SQLite CRUD
+| generation logic  |        +-------------------+
++-------------------+
+```
+
+---
+
 ## 📖 How to Use
 
 ### Generate a Resume
@@ -128,20 +152,6 @@ python app.py
 
 ---
 
-## 🎨 Interface Overview
-
-The application has a clean layout:
-
-1. **Header** - Application title and subtitle
-2. **Generation Mode** - Choose Template or AI
-3. **My Saved Resumes** - Save/load your input data
-4. **Input Form** - Enter your information
-5. **Generate Button** - Create the resume
-6. **Generated Resume** - View the output
-7. **Manage Generated** - Save/load/export generated resumes
-
----
-
 ## 💾 Database
 
 The app uses SQLite for local storage:
@@ -172,6 +182,12 @@ The app uses SQLite for local storage:
 
 ---
 
+## 🔌 API Requests
+
+- There are no external API endpoints. All processing is done locally within the application.
+
+---
+
 ## ⚡ Performance
 
 | Action | Time |
@@ -195,8 +211,8 @@ pip install transformers torch
 
 ### Database Errors
 ```bash
-# Delete the database file
-rm resumes.db  # or manually delete it
+# Delete the database file (Windows PowerShell)
+Remove-Item .\resumes.db
 # Restart the app - it will recreate automatically
 ```
 
@@ -220,17 +236,25 @@ pip install -r requirements.txt --force-reinstall
 Ai_Resume/
 ├── app.py                    # Entry point
 ├── requirements.txt          # Dependencies
-├── resumes.db               # Database (auto-created)
+├── resumes.db                # Database (auto-created)
 ├── src/
-│   ├── config.py            # Colors and settings
-│   ├── engine.py            # Resume generation logic
-│   ├── pdf_exporter.py      # PDF creation
-│   ├── database.py          # SQLite operations
+│   ├── config.py             # Colors and settings
+│   ├── engine.py             # Resume generation logic
+│   ├── pdf_exporter.py       # PDF creation
+│   ├── database.py           # SQLite operations
 │   └── ui/
-│       ├── main_window.py   # Main interface
-│       └── widgets.py       # Custom buttons
-└── RUSSIAN_EXPLANATION.md   # Russian documentation
+│       ├── main_window.py    # Main interface
+│       └── widgets.py        # Custom buttons
+└── doc/                      # Documentation
 ```
+
+---
+
+## 🧭 Commit History (optional)
+
+- Use meaningful commit messages (e.g., feat: add AI mode, fix: handle empty skills)
+- Keep clean branching: `main` for stable, feature branches for work in progress
+- Prefer small, atomic commits
 
 ---
 
@@ -283,13 +307,9 @@ EDUCATION
 ## 🌐 Language Support
 
 - **Interface**: English
-]- **Generated Resumes**: English (can be edited manually)
+- **Generated Resumes**: English (can be edited manually)
 
 ---
-
-
-
-
 
 ## 💬 Support
 
@@ -299,5 +319,4 @@ Having issues? Check:
 3. Virtual environment activated
 4. Enough disk space (~1GB)
 
-For detailed technical info, see `RUSSIAN_EXPLANATION.md`
-
+For detailed technical info, see files in the `doc/` folder.

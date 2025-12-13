@@ -1,684 +1,125 @@
-# Software Requirements Specification (SRS)
-## AI Resume Generator Pro
-
-**Version:** 1.0
-**Date:** December 11, 2025
-**Prepared by:** Development Team
+# Project Requirements — Final Project (Software Engineering)
+**Date:** 2025-12-13
 
 ---
 
-## Table of Contents
+## Purpose
 
-1. [Introduction](#1-introduction)
-2. [Overall Description](#2-overall-description)
-3. [System Features](#3-system-features)
-4. [External Interface Requirements](#4-external-interface-requirements)
-5. [System Requirements](#5-system-requirements)
-6. [Non-Functional Requirements](#6-non-functional-requirements)
-7. [Data Requirements](#7-data-requirements)
-8. [Appendices](#8-appendices)
+This document summarizes concise, English-language requirements for the final project in the "Software Engineering" course. It defines goals, mandatory deliverables, the required Software Requirements Specification (SRS) contents, minimum MVP scope, repository expectations, and acceptance conditions.
 
 ---
 
-## 1. Introduction
+## 1. Project Goal
 
-### 1.1 Purpose
-This Software Requirements Specification (SRS) document describes the functional and non-functional requirements for the AI Resume Generator Pro application. The document is intended for developers, testers, and stakeholders involved in the development and deployment of the system.
-
-### 1.2 Scope
-The AI Resume Generator Pro is a desktop application that assists users in creating professional resumes. The system provides two generation modes:
-- **Template Mode**: Quick resume generation using predefined templates
-- **AI Mode**: Intelligent resume generation using Google FLAN-T5 language model
-
-The application operates entirely offline, ensuring user privacy and data security.
-
-### 1.3 Definitions, Acronyms, and Abbreviations
-- **SRS**: Software Requirements Specification
-- **UI**: User Interface
-- **AI**: Artificial Intelligence
-- **PDF**: Portable Document Format
-- **SQLite**: Lightweight relational database management system
-- **FLAN-T5**: Fine-tuned LAnguage Net - Text-to-Text Transfer Transformer (Google's language model)
-- **ML**: Machine Learning
-- **NLP**: Natural Language Processing
-
-### 1.4 References
-- Python 3.12+ Documentation
-- Tkinter GUI Library Documentation
-- Transformers Library Documentation (Hugging Face)
-- ReportLab PDF Generation Library
-- SQLite Database Documentation
-
-### 1.5 Overview
-This document is organized into sections covering system description, functional requirements, interface requirements, non-functional requirements, and data management specifications.
+Students must develop a real, working software product that could be used beyond the classroom. Acceptable project types include business applications, automation systems, AI-enabled services, web or mobile apps, and solutions that address real operational problems. The project must be an engineering effort, not a trivial tutorial.
 
 ---
 
-## 2. Overall Description
+## 2. Mandatory Deliverables
 
-### 2.1 Product Perspective
-AI Resume Generator Pro is a standalone desktop application designed to operate independently without requiring internet connectivity. The system consists of:
-- **Frontend**: Tkinter-based graphical user interface
-- **Backend**: Python-based resume generation engine
-- **Storage**: SQLite database for local data persistence
-- **AI Component**: Optional transformers-based language model for AI-powered generation
+### 2.1 Technical Specification (SRS)
 
-### 2.2 Product Functions
-The main functions of the system include:
-- Generate professional resumes using templates or AI
-- Save and load user input data
-- Store generated resumes in a collection
-- Export resumes to PDF format
-- Provide an intuitive, modern user interface with custom theme
+The SRS must follow common standards (e.g., IEEE 830/29148) and contain at least the items below:
 
-### 2.3 User Classes and Characteristics
-**Primary Users**: Job seekers, professionals, students
-- **Technical Expertise**: Basic computer literacy
-- **Frequency of Use**: Occasional to frequent (depending on job search activity)
-- **User Goals**: Create professional, well-formatted resumes quickly
+- Introduction: purpose, scope, definitions.
+- Problem statement: what problem the project solves and the target users.
+- Goals and objectives: what the system must achieve and the business value.
+- System requirements: functional and non-functional (performance, security, reliability, UX, compatibility), constraints, and assumptions.
+- Architecture: high-level architecture and component interactions.
+- Database: chosen DBMS, schema/ER diagram, storage and access rules.
+- Interface: main screens/endpoints, user roles, UI behavior.
+- Testing: test types required, acceptance criteria.
+- Deployment (optional): installation and environment notes.
+- MVP readiness: list of mandatory features for the minimal demonstration.
 
-### 2.4 Operating Environment
-- **Operating System**: Windows, macOS, Linux (cross-platform)
-- **Python Version**: 3.12 or higher
-- **Display Resolution**: Minimum 950x750 pixels
-- **Storage**: Minimum 500 MB free disk space (more if AI model is used)
-- **RAM**: Minimum 4 GB (8 GB recommended for AI mode)
+### 2.2 Project Roadmap (recommended)
 
-### 2.5 Design and Implementation Constraints
-- Must operate offline without internet connectivity
-- Must use Python and Tkinter for cross-platform compatibility
-- AI model must be loaded locally
-- Database must be lightweight (SQLite)
-- UI must maintain specific color theme (pink, purple, lavender, mint)
-
-### 2.6 Assumptions and Dependencies
-**Assumptions:**
-- Users have Python 3.12+ installed
-- Users can install required Python packages
-- Users have sufficient disk space for AI model (if used)
-
-**Dependencies:**
-- reportlab (PDF generation)
-- transformers (AI model)
-- torch (neural network framework)
-- sentencepiece (tokenization)
-- tkinter (UI framework - included with Python)
+A short development plan using Agile/Scrum or Kanban. Include a roadmap, prioritized backlog (MoSCoW or value/effort), and key risks with mitigation strategies.
 
 ---
 
-## 3. System Features
+## 3. MVP Requirements (required)
 
-### 3.1 Resume Generation
+The MVP must include working client, server, and database components appropriate to the project type.
 
-#### 3.1.1 Template Mode Generation
-**Priority**: High
-**Description**: Generate resumes using predefined templates with smart formatting.
+### 3.1 Client
 
-**Functional Requirements:**
-- **REQ-3.1.1-1**: System shall accept user input fields: name, email, phone, education, skills, and experience
-- **REQ-3.1.1-2**: System shall generate a formatted resume using template-based algorithms
-- **REQ-3.1.1-3**: Generation shall complete within 2 seconds
-- **REQ-3.1.1-4**: System shall display generated resume in the output text area
-- **REQ-3.1.1-5**: System shall format education, skills, and experience sections appropriately
+- Implement at least 1–2 core user scenarios (web, mobile, or desktop).
+- Integrate with the server API. Authentication is recommended where relevant.
 
-#### 3.1.2 AI Mode Generation
-**Priority**: Medium
-**Description**: Generate resumes using Google FLAN-T5 AI model for creative content generation.
+### 3.2 Server
 
-**Functional Requirements:**
-- **REQ-3.1.2-1**: System shall load the FLAN-T5-small model on first use
-- **REQ-3.1.2-2**: System shall process user input through the AI model
-- **REQ-3.1.2-3**: System shall generate creative resume content based on input
-- **REQ-3.1.2-4**: System shall provide progress feedback during model loading
-- **REQ-3.1.2-5**: System shall handle AI model unavailability gracefully
-- **REQ-3.1.2-6**: AI generation may take 10-30 seconds depending on hardware
+- Provide an API (REST or GraphQL) implementing business logic and data access.
+- Secure the API (token/JWT/session or appropriate scheme).
 
-### 3.2 Data Persistence
+### 3.3 Database
 
-#### 3.2.1 Save Input Data
-**Priority**: High
-**Description**: Allow users to save their input data for future reuse.
+- Use a reasonable DBMS (Postgres, MySQL, SQLite, MongoDB, etc.).
+- Provide a schema and implement basic CRUD operations.
 
-**Functional Requirements:**
-- **REQ-3.2.1-1**: System shall validate that name field is not empty before saving
-- **REQ-3.2.1-2**: System shall store input data in SQLite database
-- **REQ-3.2.1-3**: System shall record timestamp of save operation
-- **REQ-3.2.1-4**: System shall provide confirmation message after successful save
-- **REQ-3.2.1-5**: System shall handle database errors gracefully
+### 3.4 Architecture and Testing
 
-#### 3.2.2 Load Input Data
-**Priority**: High
-**Description**: Allow users to load previously saved input data.
-
-**Functional Requirements:**
-- **REQ-3.2.2-1**: System shall display list of saved input records
-- **REQ-3.2.2-2**: Each record shall show name and timestamp
-- **REQ-3.2.2-3**: System shall populate input fields with selected record data
-- **REQ-3.2.2-4**: System shall handle empty database scenario
-- **REQ-3.2.2-5**: System shall provide user-friendly selection interface
-
-#### 3.2.3 Save Generated Resume
-**Priority**: High
-**Description**: Allow users to save generated resumes to a collection.
-
-**Functional Requirements:**
-- **REQ-3.2.3-1**: System shall prompt user for resume title
-- **REQ-3.2.3-2**: System shall store complete resume content in database
-- **REQ-3.2.3-3**: System shall record generation mode (Template/AI)
-- **REQ-3.2.3-4**: System shall timestamp the saved resume
-- **REQ-3.2.3-5**: System shall validate title is not empty
-
-#### 3.2.4 Load Generated Resume
-**Priority**: High
-**Description**: Allow users to view previously saved resumes.
-
-**Functional Requirements:**
-- **REQ-3.2.4-1**: System shall display list of saved resumes with titles
-- **REQ-3.2.4-2**: System shall show generation mode and timestamp for each resume
-- **REQ-3.2.4-3**: System shall load selected resume into output area
-- **REQ-3.2.4-4**: System shall handle empty collection scenario
-
-### 3.3 PDF Export
-
-#### 3.3.1 Export Resume to PDF
-**Priority**: High
-**Description**: Export generated resumes to PDF format for professional use.
-
-**Functional Requirements:**
-- **REQ-3.3.1-1**: System shall validate resume content exists before export
-- **REQ-3.3.1-2**: System shall provide file save dialog
-- **REQ-3.3.1-3**: System shall use .pdf extension by default
-- **REQ-3.3.1-4**: System shall format PDF with professional layout
-- **REQ-3.3.1-5**: System shall include all resume sections in PDF
-- **REQ-3.3.1-6**: System shall use readable fonts and appropriate spacing
-- **REQ-3.3.1-7**: System shall provide success/error feedback
-
-### 3.4 User Interface
-
-#### 3.4.1 Main Window Interface
-**Priority**: High
-**Description**: Provide intuitive and visually appealing user interface.
-
-**Functional Requirements:**
-- **REQ-3.4.1-1**: Window size shall be 950x750 pixels
-- **REQ-3.4.1-2**: Interface shall use specified color theme (pink, purple, lavender, mint)
-- **REQ-3.4.1-3**: All text shall be clearly readable against background
-- **REQ-3.4.1-4**: Interface shall be scrollable for smaller screens
-- **REQ-3.4.1-5**: Buttons shall have hover effects
-- **REQ-3.4.1-6**: Input fields shall have clear labels
-
-#### 3.4.2 Mode Selection
-**Priority**: High
-**Description**: Allow users to select between Template and AI generation modes.
-
-**Functional Requirements:**
-- **REQ-3.4.2-1**: System shall provide radio buttons for mode selection
-- **REQ-3.4.2-2**: Template mode shall be selected by default
-- **REQ-3.4.2-3**: Selection shall be clearly visible
-- **REQ-3.4.2-4**: System shall indicate if AI mode is unavailable
-
-#### 3.4.3 Status Feedback
-**Priority**: Medium
-**Description**: Provide real-time status updates to users.
-
-**Functional Requirements:**
-- **REQ-3.4.3-1**: System shall display current operation status
-- **REQ-3.4.3-2**: Status colors shall indicate state (green=ready, blue=processing, red=error)
-- **REQ-3.4.3-3**: Error messages shall be clear and actionable
-- **REQ-3.4.3-4**: Success messages shall confirm operation completion
+- Separate client and server with clear configuration files and error handling.
+- Provide API documentation (OpenAPI/Swagger recommended).
+- Include unit tests for key logic and basic integration/API tests.
 
 ---
 
-## 4. External Interface Requirements
+## 4. Repository Requirements (GitHub)
 
-### 4.1 User Interfaces
-
-#### 4.1.1 Main Application Window
-- **Window Title**: "🎨 AI Resume Generator Pro"
-- **Dimensions**: 950x750 pixels
-- **Background**: Gradient from light pink to white
-- **Font**: Segoe UI (primary), fallback to system sans-serif
-
-#### 4.1.2 Input Section
-- **Name Field**: Single-line text entry, required
-- **Email Field**: Single-line text entry, optional
-- **Phone Field**: Single-line text entry, optional
-- **Education Field**: Multi-line scrolled text (5 lines visible)
-- **Skills Field**: Multi-line scrolled text (5 lines visible)
-- **Experience Field**: Multi-line scrolled text (8 lines visible)
-
-#### 4.1.3 Output Section
-- **Resume Display**: Scrolled text area (15 lines visible)
-- **Read-only**: Users cannot directly edit output
-- **Font**: Monospace for consistent formatting
-
-#### 4.1.4 Buttons
-- **Generate Resume**: Large prominent button (220x50 pixels)
-- **Save Input Data**: Secondary action button
-- **Load Input Data**: Secondary action button
-- **Save to Collection**: Secondary action button
-- **Load from Collection**: Secondary action button
-- **Export to PDF**: Action button
-- **Hover Effect**: All buttons darken on hover
-
-### 4.2 Hardware Interfaces
-- **Display**: Standard computer monitor (minimum 950x750 resolution)
-- **Input Devices**: Keyboard and mouse/trackpad
-- **Storage**: Local disk drive for database and PDF files
-
-### 4.3 Software Interfaces
-
-#### 4.3.1 Python Runtime
-- **Component**: Python Interpreter
-- **Version**: 3.12 or higher
-- **Purpose**: Execute application code
-
-#### 4.3.2 Tkinter Library
-- **Component**: GUI Framework
-- **Purpose**: Render user interface
-- **Interface**: Python API calls
-
-#### 4.3.3 SQLite Database
-- **Component**: Database Engine
-- **File**: resumes.db
-- **Purpose**: Store resume data locally
-- **Tables**:
-  - `resumes`: Input data storage
-  - `generated_resumes`: Generated resume storage
-
-#### 4.3.4 Transformers Library
-- **Component**: Hugging Face Transformers
-- **Model**: google/flan-t5-small
-- **Purpose**: AI-powered text generation
-- **Optional**: System works without this if unavailable
-
-#### 4.3.5 ReportLab Library
-- **Component**: PDF Generation Engine
-- **Purpose**: Create PDF documents from resume text
-- **Output**: Standard PDF files
-
-#### 4.3.6 PyTorch
-- **Component**: Machine Learning Framework
-- **Version**: 2.2.0 or higher
-- **Purpose**: Backend for AI model inference
-
-### 4.4 Communications Interfaces
-- **None**: Application operates entirely offline
-- **No Network Required**: All processing is local
+- Recommended structure: `/client`, `/server`, `/docs` (including SRS and roadmap).
+- `README.md` must include project description, stack, installation and run instructions, and sample API calls.
+- Code must be complete and runnable; avoid missing dependencies or private components.
+- Use meaningful commit messages and branches (recommended but not mandatory).
 
 ---
 
-## 5. System Requirements
+## 5. Grading / Acceptance Criteria
 
-### 5.1 Functional Requirements Summary
+To pass, submit the following:
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-1 | System shall generate resumes using template mode | High |
-| FR-2 | System shall generate resumes using AI mode | Medium |
-| FR-3 | System shall save user input data to database | High |
-| FR-4 | System shall load user input data from database | High |
-| FR-5 | System shall save generated resumes to collection | High |
-| FR-6 | System shall load generated resumes from collection | High |
-| FR-7 | System shall export resumes to PDF format | High |
-| FR-8 | System shall validate required input fields | High |
-| FR-9 | System shall provide status feedback | Medium |
-| FR-10 | System shall handle errors gracefully | High |
-| FR-11 | System shall support scrollable interface | Medium |
-| FR-12 | System shall apply custom theme colors | Low |
+- A complete SRS (see Section 2.1).
+- A working MVP with client, server, and database.
+- The project hosted in a GitHub repository with a clear README.
+- A short demo (recorded video or live) and readiness to answer questions on architecture and implementation.
 
-### 5.2 Hardware Requirements
+Evaluation will check:
 
-#### 5.2.1 Minimum Requirements
-- **Processor**: Intel Core i3 or equivalent
-- **RAM**: 4 GB
-- **Storage**: 500 MB free space
-- **Display**: 1024x768 resolution
-
-#### 5.2.2 Recommended Requirements (for AI mode)
-- **Processor**: Intel Core i5 or better
-- **RAM**: 8 GB
-- **Storage**: 2 GB free space (for AI model cache)
-- **Display**: 1920x1080 resolution
-
-### 5.3 Software Requirements
-
-#### 5.3.1 Operating System
-- Windows 10/11
-- macOS 10.14+
-- Linux (Ubuntu 20.04+ or equivalent)
-
-#### 5.3.2 Python Environment
-- Python 3.12 or higher
-- pip package manager
-- venv module for virtual environments
-
-#### 5.3.3 Required Python Packages
-```
-reportlab==4.0.7
-transformers==4.44.0
-torch>=2.2.0
-sentencepiece>=0.1.99
-```
-
-#### 5.3.4 Optional Components
-- Virtual environment (recommended)
-- Git (for source control)
+- Functional correctness of MVP features.
+- Code quality and project structure.
+- Presence of tests and basic test results.
+- Documentation completeness (SRS + README + API docs).
+- Ability to explain design choices and trade-offs.
 
 ---
 
-## 6. Non-Functional Requirements
+## 6. Minimal submission checklist (copy into your repo `docs/` or README)
 
-### 6.1 Performance Requirements
-
-#### 6.1.1 Response Time
-- **Template Generation**: Maximum 2 seconds
-- **AI Model Loading**: Maximum 60 seconds (first time only)
-- **AI Generation**: 10-30 seconds (varies by hardware)
-- **Database Operations**: Maximum 1 second
-- **PDF Export**: Maximum 5 seconds
-- **UI Responsiveness**: Immediate feedback (<100ms) for all interactions
-
-#### 6.1.2 Throughput
-- Support generation of up to 100 resumes per session
-- Database shall handle up to 1000 saved records without performance degradation
-
-#### 6.1.3 Resource Usage
-- **Memory**: Maximum 2 GB RAM (4 GB with AI model loaded)
-- **CPU**: Minimal CPU usage during idle
-- **Disk I/O**: Efficient database operations
-- **Storage Growth**: Database file grows approximately 1 KB per saved resume
-
-### 6.2 Security Requirements
-
-#### 6.2.1 Data Privacy
-- **REQ-6.2.1-1**: All user data shall remain local to the user's computer
-- **REQ-6.2.1-2**: No data shall be transmitted over network
-- **REQ-6.2.1-3**: No telemetry or tracking shall be implemented
-- **REQ-6.2.1-4**: Database shall be stored in application directory
-
-#### 6.2.2 Data Integrity
-- **REQ-6.2.2-1**: Database operations shall use transactions
-- **REQ-6.2.2-2**: System shall validate data before storage
-- **REQ-6.2.2-3**: Corrupted data shall not crash the application
-
-### 6.3 Reliability Requirements
-
-#### 6.3.1 Availability
-- **REQ-6.3.1-1**: Application shall start successfully 99.9% of the time
-- **REQ-6.3.1-2**: Application shall function without internet connectivity
-
-#### 6.3.2 Error Handling
-- **REQ-6.3.2-1**: System shall catch and handle all exceptions
-- **REQ-6.3.2-2**: Error messages shall be user-friendly
-- **REQ-6.3.2-3**: Application shall not crash on invalid input
-- **REQ-6.3.2-4**: Failed operations shall not corrupt database
-
-#### 6.3.3 Recovery
-- **REQ-6.3.3-1**: Database shall maintain integrity after crash
-- **REQ-6.3.3-2**: Partial operations shall be rolled back on failure
-
-### 6.4 Maintainability Requirements
-
-#### 6.4.1 Code Quality
-- **REQ-6.4.1-1**: Code shall follow PEP 8 Python style guidelines
-- **REQ-6.4.1-2**: Functions shall have docstrings
-- **REQ-6.4.1-3**: Code shall be modular and organized in packages
-
-#### 6.4.2 Documentation
-- **REQ-6.4.2-1**: README shall provide installation instructions
-- **REQ-6.4.2-2**: Code shall include inline comments for complex logic
-- **REQ-6.4.2-3**: SRS document shall be maintained and updated
-
-### 6.5 Portability Requirements
-
-#### 6.5.1 Platform Independence
-- **REQ-6.5.1-1**: Application shall run on Windows, macOS, and Linux
-- **REQ-6.5.1-2**: UI shall adapt to different screen sizes
-- **REQ-6.5.1-3**: File paths shall use OS-independent conventions
-
-#### 6.5.2 Compatibility
-- **REQ-6.5.2-1**: Application shall work with Python 3.12+
-- **REQ-6.5.2-2**: PDF output shall be compatible with standard PDF readers
-
-### 6.6 Usability Requirements
-
-#### 6.6.1 Ease of Use
-- **REQ-6.6.1-1**: Users shall generate first resume within 5 minutes
-- **REQ-6.6.1-2**: Interface shall be intuitive without training
-- **REQ-6.6.1-3**: All buttons shall have descriptive labels
-- **REQ-6.6.1-4**: Error messages shall guide users to resolution
-
-#### 6.6.2 Aesthetics
-- **REQ-6.6.2-1**: Interface shall use consistent color scheme
-- **REQ-6.6.2-2**: Fonts shall be readable at default size
-- **REQ-6.6.2-3**: Layout shall be visually balanced
-- **REQ-6.6.2-4**: Buttons shall provide visual feedback on hover
-
-#### 6.6.3 Accessibility
-- **REQ-6.6.3-1**: Text shall have sufficient contrast with background
-- **REQ-6.6.3-2**: Interface shall be keyboard-navigable
-- **REQ-6.6.3-3**: Font size shall be readable without magnification
+- [ ] SRS document (SRS.md or doc/SRS)
+- [ ] Roadmap / backlog (optional but recommended)
+- [ ] Client code (or UI demo)
+- [ ] Server code and API (with docs)
+- [ ] Database schema and seed/test data
+- [ ] Unit tests and instructions to run them
+- [ ] README with run/install instructions
+- [ ] Demo link or recorded video
 
 ---
 
-## 7. Data Requirements
+## Notes and good practices
 
-### 7.1 Database Schema
-
-#### 7.1.1 Resumes Table (Input Data)
-```sql
-CREATE TABLE resumes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT,
-    phone TEXT,
-    education TEXT,
-    skills TEXT,
-    experience TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-);
-```
-
-**Fields:**
-- `id`: Unique identifier (auto-generated)
-- `name`: User's full name (required)
-- `email`: Contact email address (optional)
-- `phone`: Contact phone number (optional)
-- `education`: Educational background (optional)
-- `skills`: List of skills (optional)
-- `experience`: Work experience details (optional)
-- `created_at`: Timestamp of record creation (ISO format)
-- `updated_at`: Timestamp of last update (ISO format)
-
-#### 7.1.2 Generated Resumes Table
-```sql
-CREATE TABLE generated_resumes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    mode TEXT,
-    created_at TEXT NOT NULL
-);
-```
-
-**Fields:**
-- `id`: Unique identifier (auto-generated)
-- `title`: User-provided resume title (required)
-- `content`: Complete resume text (required)
-- `mode`: Generation mode ("Template" or "AI")
-- `created_at`: Timestamp of creation (ISO format)
-
-### 7.2 Data Validation
-
-#### 7.2.1 Input Validation Rules
-- **Name**: Must not be empty for save operations
-- **Email**: No format validation (optional field)
-- **Phone**: No format validation (optional field)
-- **Text Fields**: No maximum length restrictions
-- **Title**: Must not be empty when saving generated resume
-
-#### 7.2.2 Data Sanitization
-- No SQL injection protection needed (using parameterized queries)
-- Special characters preserved in all text fields
-- Line breaks and formatting preserved
-
-### 7.3 Data Storage
-
-#### 7.3.1 Database File
-- **Filename**: resumes.db
-- **Location**: Application root directory
-- **Format**: SQLite 3
-- **Encoding**: UTF-8
-
-#### 7.3.2 PDF Files
-- **Format**: PDF 1.4 or higher
-- **Location**: User-selected directory
-- **Naming**: User-provided filename with .pdf extension
-
-### 7.4 Data Backup and Recovery
-- **REQ-7.4-1**: Users responsible for backing up resumes.db
-- **REQ-7.4-2**: Database file is portable (can be copied)
-- **REQ-7.4-3**: No automatic backup mechanism provided
+- Keep the SRS concise, clear, and in English. Don't overdo details — include what's necessary for reproducibility and assessment.
+- Use OpenAPI/Swagger for API clarity if you have a server component.
+- Prefer automated tests for core logic. Manual UI tests are acceptable for heavy UI components.
+- If your project uses external services or paid APIs, document them clearly and provide fallback modes or test keys.
 
 ---
 
-## 8. Appendices
+If you want, I can:
 
-### 8.1 Color Scheme Specification
+- Convert this into a nicely formatted `SRS.md` and place it under `docs/` and `doc/`.
+- Generate a short README template, a simple OpenAPI stub, or a basic test skeleton for the project.
 
-```python
-COLORS = {
-    'bg_gradient_start': '#FFF0F5',    # Lavender blush
-    'bg_gradient_end': '#FFE4E1',      # Misty rose
-    'accent_color': '#FF69B4',         # Hot pink
-    'accent_hover': '#FF1493',         # Deep pink
-    'button_secondary': '#DDA0DD',     # Plum
-    'button_secondary_hover': '#DA70D6', # Orchid
-    'text_primary': '#4B0082',         # Indigo
-    'text_secondary': '#8B008B',       # Dark magenta
-    'success': '#00CED1',              # Dark turquoise
-    'error': '#DC143C',                # Crimson
-    'info': '#9370DB'                  # Medium purple
-}
-```
-
-### 8.2 Window Configuration
-
-```python
-WINDOW_CONFIG = {
-    'title': '🎨 AI Resume Generator Pro',
-    'width': 950,
-    'height': 750
-}
-```
-
-### 8.3 Module Structure
-
-```
-Ai_Resume/
-├── app.py                    # Main entry point
-├── requirements.txt          # Python dependencies
-├── resumes.db               # SQLite database (created at runtime)
-├── README.md                # User documentation
-├── SRS.docx                 # Software requirements (Word format)
-├── doc                      # Software requirements (text format)
-└── src/
-    ├── __init__.py
-    ├── config.py            # Configuration constants
-    ├── database.py          # Database operations
-    ├── engine.py            # Resume generation logic
-    ├── pdf_exporter.py      # PDF export functionality
-    └── ui/
-        ├── __init__.py
-        ├── main_window.py   # Main application window
-        └── widgets.py       # Custom UI widgets
-```
-
-### 8.4 Template Generation Algorithm
-
-The template mode uses rule-based text generation:
-1. Extract key information from input fields
-2. Format name and contact information as header
-3. Parse and bullet-point education entries
-4. Format skills as comma-separated list or bullets
-5. Parse and structure experience entries
-6. Apply consistent formatting and spacing
-7. Add section headers and visual separators
-
-### 8.5 AI Generation Process
-
-The AI mode uses FLAN-T5 model:
-1. Load pre-trained model (google/flan-t5-small)
-2. Construct prompt from user input
-3. Tokenize prompt for model input
-4. Generate text using model inference
-5. Decode and format generated content
-6. Combine sections into complete resume
-7. Apply post-processing for consistency
-
-### 8.6 Glossary
-
-- **Resume**: A document containing a summary of a person's qualifications and experience
-- **Template Mode**: Predefined format-based generation approach
-- **AI Mode**: Machine learning model-based generation approach
-- **Collection**: Stored set of generated resumes
-- **Input Data**: User's personal information for resume generation
-- **SQLite**: Serverless, file-based relational database
-- **Tkinter**: Python's standard GUI toolkit
-- **PDF Export**: Converting resume to Portable Document Format
-- **FLAN-T5**: Google's fine-tuned language model for text generation
-- **Transformers**: Hugging Face library for natural language processing
-
-### 8.7 Future Enhancements (Out of Scope for v1.0)
-
-- Multiple resume templates
-- Custom color theme selection
-- Export to Word format (.docx)
-- Grammar and spell checking
-- Resume scoring and suggestions
-- LinkedIn profile import
-- Multi-language support
-- Resume comparison feature
-- Cloud sync (optional)
-- Mobile companion app
-
-### 8.8 Known Limitations
-
-1. AI mode requires significant RAM (4-8 GB)
-2. AI model download may take time on first use
-3. No built-in spell checker
-4. Single window interface (no multi-document support)
-5. Limited PDF formatting options
-6. No resume templates beyond default
-7. No undo/redo functionality for generated resumes
-8. No print preview before PDF export
-
-### 8.9 Testing Requirements
-
-#### 8.9.1 Unit Testing
-- Test database CRUD operations
-- Test resume generation functions
-- Test PDF export functionality
-- Test input validation
-
-#### 8.9.2 Integration Testing
-- Test UI with database operations
-- Test UI with resume engine
-- Test end-to-end resume generation workflow
-
-#### 8.9.3 User Acceptance Testing
-- Verify usability with target users
-- Confirm resume quality meets expectations
-- Validate PDF output is professional
-- Test on multiple operating systems
-
-#### 8.9.4 Performance Testing
-- Measure generation time under various loads
-- Test with large text inputs
-- Verify memory usage remains within limits
+Tell me which of these you'd like next.
 
 ---
-
-
