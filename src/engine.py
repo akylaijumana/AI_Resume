@@ -1,17 +1,3 @@
-"""
-Resume Generation Engine
-Handles both template-based and AI-powered resume generation
-"""
-import random
-import warnings
-import os
-
-# suppress warnings so output looks cleaner
-warnings.filterwarnings('ignore')
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
-
-# check if transformers library is available before trying to import it
 AI_AVAILABLE = False
 try:
     import importlib.util
