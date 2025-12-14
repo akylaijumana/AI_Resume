@@ -162,6 +162,8 @@ The app uses SQLite for local storage:
   - `resumes` - Stores input data
   - `generated_resumes` - Stores generated outputs
 
+**Schema & ER Diagram**: See `docs/DATABASE_SCHEMA.md`
+
 **Backup**: Just copy the `resumes.db` file
 
 ---
